@@ -11,7 +11,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc && esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm",
+    "build": "rm -rf dist && tsc && esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm --platform=node",
     "test": "vitest run",
     "cov": "vitest --coverage",
     "prepublishOnly": "npm run build",

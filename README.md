@@ -238,7 +238,13 @@ npm run example:fava
 ```
 
 Use `npm run example:fava:crypto` to open the crypto example instead.
-The launcher tries the `fava` command first, then `python3`, then `python`. If Python is available but Fava is missing, it installs Fava with pip before opening the generated file.
+You can also start Fava from code:
+
+```ts
+utils.startFava(ledger);
+```
+
+`startFava` tries the `fava` command first, then `python3`, then `python`. If Python is available but Fava is missing, it installs Fava with pip before opening the generated file.
 
 ## License
 

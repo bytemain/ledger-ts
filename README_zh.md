@@ -147,4 +147,10 @@ npm run example:fava
 ```
 
 也可以用 `npm run example:fava:crypto` 打开加密货币示例。
-启动脚本会依次尝试 `fava` 命令、`python3`、`python`。如果 Python 可用但缺少 Fava，会先用 pip 安装 Fava，再打开生成的文件。
+也可以在代码里直接启动 Fava：
+
+```ts
+utils.startFava(ledger);
+```
+
+`startFava` 会依次尝试 `fava` 命令、`python3`、`python`。如果 Python 可用但缺少 Fava，会先用 pip 安装 Fava，再打开生成的文件。
