@@ -1,6 +1,6 @@
 import { dirname, resolve } from "node:path";
 import { mkdirSync, writeFileSync } from "node:fs";
-import { EAccountType, Ledger, utils } from "../index.js";
+import { EAccountType, Ledger, utils } from "../src/index.js";
 
 const currencies = utils.createCurrencies({ defaultDate: "2024-01-01" }, [
   "USD",

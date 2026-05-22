@@ -1,4 +1,4 @@
-import { EAccountType, Ledger, utils } from "../index.js";
+import { EAccountType, Ledger, utils } from "../src/index.js";
 
 const { USD, CNY } = utils.createCurrencies({ defaultDate: "1970-10-01" }, [
   "USD",

@@ -231,13 +231,14 @@ npm run example:investment -- --output tmp/fava/investment.bean
 npm run example:crypto -- --output tmp/fava/crypto.bean
 ```
 
-If Fava is installed in your Python environment, start it with one command:
+Start Fava with one command:
 
 ```bash
 npm run example:fava
 ```
 
 Use `npm run example:fava:crypto` to open the crypto example instead.
+The launcher tries the `fava` command first, then `python3`, then `python`. If Python is available but Fava is missing, it installs Fava with pip before opening the generated file.
 
 ## License
 
