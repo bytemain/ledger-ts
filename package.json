@@ -14,7 +14,12 @@
     "build": "rm -rf dist && tsc && esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm",
     "cov": "vitest --coverage",
     "prepublishOnly": "npm run build",
-    "example:beancount": "tsx src/example/beancount.ts"
+    "example:beancount": "tsx src/example/beancount.ts",
+    "example:investment": "tsx src/example/investment.ts",
+    "example:crypto": "tsx src/example/crypto.ts",
+    "example:fava": "npm run example:fava:investment",
+    "example:fava:investment": "npm run example:investment -- --output tmp/fava/investment.bean && python3 -m fava tmp/fava/investment.bean",
+    "example:fava:crypto": "npm run example:crypto -- --output tmp/fava/crypto.bean && python3 -m fava tmp/fava/crypto.bean"
   },
   "devDependencies": {
     "@types/node": "^20.11.19",

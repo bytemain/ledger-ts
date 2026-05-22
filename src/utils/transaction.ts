@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { Ledger } from "../core/ledger.js";
-import { IPostings, ITransaction, Metadata } from "../core/type.js";
+import { IPostings, ITransaction, Metadata, TTransactionFlag } from "../core/type.js";
 
 export type ITransactionProcess = (old: ITransaction) => ITransaction;
 
@@ -43,6 +43,13 @@ const buildTr: TransactionFn<ITransaction> = (
   };
 };
 
+export function pendingFlag(): ITransactionProcess {
+  return (tr: ITransaction): ITransaction => ({
+    ...tr,
+    flag: "!" as TTransactionFlag,
+  });
+}
+
 export function transactionBuilder(ledger: Ledger) {
   const tr: TransactionFn<void> = (
     date: string,
@@ -50,6 +57,15 @@ export function transactionBuilder(ledger: Ledger) {
     ...rest: any[]
   ) => {
     ledger.transaction(buildTr(date, payeeOrNarration, ...rest));
+  };
+
+  const pending: TransactionFn<void> = (
+    date: string,
+    payeeOrNarration: string,
+    ...rest: any[]
+  ) => {
+    const transaction = buildTr(date, payeeOrNarration, ...rest);
+    ledger.transaction({ ...transaction, flag: "!" });
   };
 
   function trFactory(
@@ -72,6 +88,7 @@ export function transactionBuilder(ledger: Ledger) {
 
   return {
     tr,
+    pending,
     trFactory,
   };
 }

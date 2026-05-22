@@ -21,6 +21,9 @@ export type IPostingsPrice =
   | {
       type: "cost";
       amount: IAmount;
+    }
+  | {
+      type: "auto";
     };
 
 export interface IPostings {
@@ -48,14 +51,18 @@ export interface IAccount {
   closeDate?: Date;
 }
 
+export type TTransactionFlag = "*" | "!";
+
 export interface ITransaction {
   type: "transaction";
   date: Date;
-  flag: string;
+  flag: TTransactionFlag;
   payee?: string;
   narration: string;
   postings: IPostings[];
   metadata?: Metadata;
+  tags?: string[];
+  links?: string[];
 }
 
 export interface IPrice {
@@ -81,12 +88,31 @@ export interface IBalance {
   pad?: IAccount;
 }
 
+export interface INote {
+  type: "note";
+  date: Date;
+  account: IAccount;
+  comment: string;
+}
+
+export interface IDocument {
+  type: "document";
+  date: Date;
+  account: IAccount;
+  path: string;
+}
+
 export interface ILedger {
+  options?: Record<string, string>;
+  plugins?: string[];
+  includes?: string[];
   prices: IPrice[];
   transactions: ITransaction[];
   accounts: IAccount[];
   currencies: ICurrency[];
   balances: IBalance[];
+  notes: INote[];
+  documents: IDocument[];
 }
 
 export type Metadata = Record<string, string | number>;

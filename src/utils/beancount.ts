@@ -3,8 +3,11 @@ import {
   IAccount,
   IBalance,
   ICurrency,
+  IDocument,
   ILedger,
+  INote,
   IPostings,
+  IPrice,
   ITransaction,
   Metadata,
 } from "../core/type.js";
@@ -19,15 +22,55 @@ class BeanCount {
   }
 
   serializationLedger(ledger: ILedger) {
-    return `
-${this.serializationCurrencies(ledger.currencies)}
+    const parts: string[] = [];
 
-${this.serializationAccounts(ledger.accounts)}
+    const options = this.serializationOptions(ledger.options, ledger.plugins, ledger.includes);
+    if (options) parts.push(options);
 
-${this.serializationTransactions(ledger.transactions)}
+    parts.push(this.serializationCurrencies(ledger.currencies));
+    parts.push(this.serializationAccounts(ledger.accounts));
 
-${this.serializationBalances(ledger.balances)}
-    `.trim();
+    const prices = this.serializationPrices(ledger.prices);
+    if (prices) parts.push(prices);
+
+    parts.push(this.serializationTransactions(ledger.transactions));
+    parts.push(this.serializationBalances(ledger.balances));
+
+    const notes = this.serializationNotes(ledger.notes ?? []);
+    if (notes) parts.push(notes);
+
+    const documents = this.serializationDocuments(ledger.documents ?? []);
+    if (documents) parts.push(documents);
+
+    return parts.filter((p) => p.trim()).join("\n\n");
+  }
+
+  serializationOptions(
+    options?: Record<string, string>,
+    plugins?: string[],
+    includes?: string[]
+  ): string {
+    const lines: string[] = [];
+
+    if (options) {
+      for (const key of Object.keys(options).sort()) {
+        lines.push(`option "${key}" "${options[key]}"`);
+      }
+    }
+
+    if (plugins) {
+      for (const plugin of plugins) {
+        lines.push(`plugin "${plugin}"`);
+      }
+    }
+
+    if (includes) {
+      for (const file of includes) {
+        lines.push(`include "${file}"`);
+      }
+    }
+
+    return lines.join("\n");
   }
 
   serializationCurrencies(currencies: ICurrency[]) {
@@ -40,6 +83,20 @@ ${this.serializationBalances(ledger.balances)}
         ]);
       })
       .join("\n\n");
+  }
+
+  serializationPrices(prices: IPrice[]): string {
+    return prices
+      .sort((a, b) => {
+        return mergeSortResult([
+          compareDate(a.date, b.date),
+          compareString(a.currency.symbol, b.currency.symbol),
+        ]);
+      })
+      .map((p) => {
+        return `${this.formateDate(p.date)} price ${p.currency.symbol}          ${p.amount.value} ${p.amount.currency.symbol}`;
+      })
+      .join("\n");
   }
 
   private mergeLines(deep: number, lines: string[] | Array<string[]>): string {
@@ -119,6 +176,34 @@ ${this.formateDate(p.date)} balance ${this.accountName(p.account)} ${
       .join("\n\n");
   }
 
+  serializationNotes(notes: INote[]): string {
+    return notes
+      .sort((a, b) => {
+        return mergeSortResult([
+          compareDate(a.date, b.date),
+          compareString(this.accountName(a.account), this.accountName(b.account)),
+        ]);
+      })
+      .map((p) => {
+        return `${this.formateDate(p.date)} note ${this.accountName(p.account, 0)} "${p.comment}"`;
+      })
+      .join("\n");
+  }
+
+  serializationDocuments(documents: IDocument[]): string {
+    return documents
+      .sort((a, b) => {
+        return mergeSortResult([
+          compareDate(a.date, b.date),
+          compareString(this.accountName(a.account), this.accountName(b.account)),
+        ]);
+      })
+      .map((p) => {
+        return `${this.formateDate(p.date)} document ${this.accountName(p.account, 0)} "${p.path}"`;
+      })
+      .join("\n");
+  }
+
   private accountName(account: IAccount, pad?: number): string {
     return `${account.type}:${account.namespace.join(":")}`.padEnd(
       pad ?? this.accountPad
@@ -141,8 +226,22 @@ ${this.formateDate(p.date)} balance ${this.accountName(p.account)} ${
         } else {
           payeeAndNarration = `"${p.narration}"`;
         }
+
+        const tagsAndLinks: string[] = [];
+        if (p.tags) {
+          for (const tag of p.tags) {
+            tagsAndLinks.push(`#${tag}`);
+          }
+        }
+        if (p.links) {
+          for (const link of p.links) {
+            tagsAndLinks.push(`^${link}`);
+          }
+        }
+        const tagsAndLinksStr = tagsAndLinks.length > 0 ? ` ${tagsAndLinks.join(" ")}` : "";
+
         const res = this.mergeLines(0, [
-          `${this.formateDate(p.date)} ${p.flag} ${payeeAndNarration}`,
+          `${this.formateDate(p.date)} ${p.flag} ${payeeAndNarration}${tagsAndLinksStr}`,
           this.serializationMetadata(2, p.metadata),
           this.mergeLines(
             2,
@@ -184,6 +283,10 @@ ${this.formateDate(p.date)} balance ${this.accountName(p.account)} ${
           price.push(
             `{ # ${held.amount.value} ${held.amount.currency.symbol} }`
           );
+          break;
+        }
+        case "auto": {
+          price.push(`{}`);
           break;
         }
       }

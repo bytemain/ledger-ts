@@ -12,12 +12,15 @@ export function padAccount(account: Account) {
           } else {
             init = init.add(posting.as.amount.value);
           }
-        } else {
+        } else if (posting.as.type === "price") {
           init = init.add(
             new Decimal(posting.as.amount.value)
               .mul(new Decimal(posting.amount.value))
               .toNumber()
           );
+        } else {
+          // auto: fall back to raw amount
+          init = init.add(posting.amount.value);
         }
       } else if (posting.held) {
         if (posting.held.type === "cost") {
@@ -26,12 +29,15 @@ export function padAccount(account: Account) {
           } else {
             init = init.add(posting.held.amount.value);
           }
-        } else {
+        } else if (posting.held.type === "price") {
           init = init.add(
             new Decimal(posting.held.amount.value)
               .mul(new Decimal(posting.amount.value))
               .toNumber()
           );
+        } else {
+          // auto lot matching: fall back to raw amount
+          init = init.add(posting.amount.value);
         }
       } else {
         init = init.add(posting.amount.value);
