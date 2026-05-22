@@ -101,11 +101,11 @@ ledger-ts 的定位是用 TypeScript API 编写账本，再序列化为 Beancoun
 
 ## 后续计划
 
-- [ ] 增强 `ledger.validate()`：支持单条 posting 自动补平、容差、更多 Beancount 校验规则
-- [ ] 增强 metadata：覆盖更多 directive 和 transaction/posting 场景
+- [x] 增强 `ledger.validate()`：支持单条 posting 自动补平、容差、更多 Beancount 校验规则
+- [x] 增强 metadata：覆盖更多 directive 和 transaction/posting 场景
 - [ ] 增强 lot 能力：支持日期、标签、merge/reduce 等更完整 lot 语法
 - [ ] 增强排序策略：让不同 directive 的输出顺序更接近大型 `.bean` 文件的维护习惯
-- [ ] 增强错误信息：为校验错误附带更稳定的定位信息，方便在生成账本时追踪来源
+- [x] 增强错误信息：为校验错误附带更稳定的定位信息，方便在生成账本时追踪来源
 - [ ] 增加更完整的端到端示例：覆盖投资买入、卖出、分红、费用、价格更新和 include 拆分
 
 ## 优化方案
@@ -145,20 +145,20 @@ ledger-ts 的定位是用 TypeScript API 编写账本，再序列化为 Beancoun
 建议事项：
 
 - 完善 `validate()`：
-  - 支持一条空金额 posting 的自动补平校验；
-  - 对金额比较增加可配置容差；
-  - 区分普通金额、`@`、`@@`、`{}`、`{ # }` 场景下的校验边界；
-  - 输出包含 transaction 日期、payee、narration、account 的稳定错误信息。
+  - [x] 支持一条空金额 posting 的自动补平校验；
+  - [x] 对金额比较增加可配置容差；
+  - [x] 区分普通金额、`@`、`@@`、`{}`、`{ # }` 场景下的校验边界；
+  - [x] 输出包含 transaction 日期、payee、narration、account 的稳定错误信息。
 - 完善 directive 支持：
-  - 增加 `event`、`custom`；
-  - 为 `option` 支持多值场景，例如多条 `operating_currency`；
+  - [x] 增加 `event`、`custom`；
+  - [x] 为 `option` 支持多值场景，例如多条 `operating_currency`；
   - 确认 `plugin`、`include`、`option` 的输出顺序可配置。
 - 完善 metadata：
-  - 明确 commodity、account、transaction、posting、price、note、document 的 metadata 序列化规则；
-  - 补充字符串、数字、布尔、日期等常见值类型的格式策略。
+  - [x] 明确 commodity、account、transaction、posting、price、note、document 的 metadata 序列化规则；
+  - [x] 补充字符串、数字、布尔、日期等常见值类型的格式策略。
 - 校正已有边界：
   - `pad` 是否需要作为独立 directive 暴露；
-  - close 指令日期应使用账户关闭日期；
+  - [x] close 指令日期应使用账户关闭日期；
   - 多货币 balance 的声明和示例。
 
 验收标准：
