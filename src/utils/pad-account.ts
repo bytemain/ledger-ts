@@ -5,6 +5,10 @@ export function padAccount(account: Account) {
   return (old: ITransaction): ITransaction => {
     let init = new Decimal(0);
     old.postings.forEach((posting) => {
+      if (!posting.amount) {
+        return;
+      }
+
       if (posting.as) {
         if (posting.as.type === "cost") {
           if (posting.amount.value < 0) {

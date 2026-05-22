@@ -9,7 +9,7 @@ export function settle(tr: ITransaction, option: { account: Account }) {
     if (o.metadata?.[SettleMetadataKey]) {
       res.push({
         type: "transaction",
-        date: new Date(o.metadata[SettleMetadataKey]),
+        date: new Date(String(o.metadata[SettleMetadataKey])),
         flag: tr.flag,
         payee: tr.payee,
         narration: `Settle ${tr.narration}`,
@@ -55,6 +55,10 @@ function removeMetadataKeys(postings: IPostings, keys: string[]): IPostings {
 }
 
 function negative(postings: IPostings): IPostings {
+  if (!postings.amount) {
+    return postings;
+  }
+
   return {
     ...postings,
     amount: {

@@ -20,13 +20,16 @@ export class Account implements IAccount {
     this.currencies = option.currencies;
   }
 
-  posting(value: number, currency?: ICurrency): Postings {
+  posting(value?: number, currency?: ICurrency): Postings {
     return new Postings({
       account: this,
-      amount: {
-        value,
-        currency: currency ?? this.defaultCurrency,
-      },
+      amount:
+        value == null
+          ? null
+          : {
+              value,
+              currency: currency ?? this.defaultCurrency,
+            },
     });
   }
 
