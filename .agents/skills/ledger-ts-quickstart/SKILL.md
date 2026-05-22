@@ -70,4 +70,3 @@ console.log(utils.beanCount.serializationLedger(ledger));
 - 仓库内示例从 `../src/index.js` 导入，发布后的使用者从 `@hamsterbase/ledger-ts` 导入。
 - 可参考 `examples/beancount.ts`、`examples/investment.ts`、`examples/crypto.ts`。
 - 验证命令：`npm run build` 和 `npm test`。
-

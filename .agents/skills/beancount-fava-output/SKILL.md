@@ -45,4 +45,3 @@ npm run example:crypto -- --output tmp/fava/crypto.bean
 - 如果币种不对，检查 `createAccountNodeConfig({ currency })` 或 `account.posting(value, currency)`。
 - 如果交易不平衡，优先按币种分别合计 postings。
 - 如果投资 lot 不符合预期，检查 `.heldPrice(...)`、`.heldCost(...)`、`.heldAuto()` 与 `.asPrice(...)`、`.asCost(...)` 的组合。
-

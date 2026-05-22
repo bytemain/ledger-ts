@@ -40,4 +40,3 @@ description: 当用户要求设计、检查或修复记账规则、复式记账�
 - 还信用卡：`Assets:Bank` 减少，`Liabilities:CreditCard` 减少（金额为正）。
 - 预付费用：先入 `Assets:Prepaid`，之后用 `utils.prepaid(...)` 分期转入费用。
 - 待结算项目：先把带 `settle` metadata 的 posting 转入结算账户，再用 `utils.settle(...)` 生成结算交易。
-
