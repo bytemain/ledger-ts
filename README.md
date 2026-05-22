@@ -217,6 +217,28 @@ console.log(utils.beanCount.serializationLedger(ledger));
 
 This does not replace Beancount's own validation. It is intended to catch common mistakes earlier while writing TypeScript.
 
+## Realistic examples and Fava
+
+Two runnable examples convert common Beancount article scenarios into ledger-ts code:
+
+- `npm run example:investment` prints an investment ledger covering broker cash transfer, ETF buy, price update, dividend, fee, and partial sale with automatic lot matching.
+- `npm run example:crypto` prints a crypto exchange ledger covering USDT deposit, BTC purchase, fee, price update, and partial sale.
+
+Each example can also write the generated Beancount file:
+
+```bash
+npm run example:investment -- --output tmp/fava/investment.bean
+npm run example:crypto -- --output tmp/fava/crypto.bean
+```
+
+If Fava is installed in your Python environment, start it with one command:
+
+```bash
+npm run example:fava
+```
+
+Use `npm run example:fava:crypto` to open the crypto example instead.
+
 ## License
 
 MIT

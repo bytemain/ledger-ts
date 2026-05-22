@@ -125,3 +125,25 @@ console.log(utils.beanCount.serializationLedger(ledger));
 ```
 
 这不能替代 Beancount 自身的校验，只是用于在编写 TypeScript 时更早发现常见错误。
+
+## 真实示例与 Fava
+
+新增两个可运行示例，把常见 Beancount 文章中的场景转成 ledger-ts 代码：
+
+- `npm run example:investment`：输出投资账本，覆盖券商入金、ETF 买入、价格更新、分红、手续费、自动 lot 匹配卖出。
+- `npm run example:crypto`：输出加密货币交易所账本，覆盖 USDT 入金、BTC 买入、手续费、价格更新、部分卖出。
+
+示例也可以写出生成后的 Beancount 文件：
+
+```bash
+npm run example:investment -- --output tmp/fava/investment.bean
+npm run example:crypto -- --output tmp/fava/crypto.bean
+```
+
+如果 Python 环境中已经安装 Fava，可以一键启动：
+
+```bash
+npm run example:fava
+```
+
+也可以用 `npm run example:fava:crypto` 打开加密货币示例。
