@@ -13,6 +13,9 @@ export type {
 
 export { beanCount } from "./beancount.js";
 
+export { startFava } from "./fava.js";
+export type { FavaInput, FavaOptions } from "./fava.js";
+
 export { createCurrencies } from "./currency.js";
 export type { CurrencyConfig } from "./currency.js";
 
