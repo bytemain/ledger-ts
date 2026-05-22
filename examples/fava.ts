@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { startFava } from "../src/index.js";
+import { utils } from "../src/index.js";
 
 const examples = {
   investment: "tmp/fava/investment.bean",
@@ -28,7 +28,7 @@ runCommand("npm", [
   beanPath,
 ]);
 
-startFava(beanPath);
+utils.startFava(beanPath);
 
 function isExampleName(value: string): value is ExampleName {
   return value in examples;
