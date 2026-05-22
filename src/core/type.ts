@@ -28,7 +28,7 @@ export type IPostingsPrice =
 
 export interface IPostings {
   account: IAccount;
-  amount: IAmount;
+  amount?: IAmount | null;
   metadata?: Metadata | null;
 
   /**
@@ -73,6 +73,11 @@ export interface IPrice {
   metadata?: Metadata;
 }
 
+export interface IOption {
+  key: string;
+  value: string;
+}
+
 export enum EAccountType {
   Assets = "Assets",
   Expenses = "Expenses",
@@ -93,6 +98,7 @@ export interface INote {
   date: Date;
   account: IAccount;
   comment: string;
+  metadata?: Metadata;
 }
 
 export interface IDocument {
@@ -100,10 +106,29 @@ export interface IDocument {
   date: Date;
   account: IAccount;
   path: string;
+  metadata?: Metadata;
+}
+
+export interface IEvent {
+  type: "event";
+  date: Date;
+  name: string;
+  value: string;
+  metadata?: Metadata;
+}
+
+export type CustomValue = string | number | boolean | Date | IAmount | IAccount;
+
+export interface ICustom {
+  type: "custom";
+  date: Date;
+  name: string;
+  values?: CustomValue[];
+  metadata?: Metadata;
 }
 
 export interface ILedger {
-  options?: Record<string, string>;
+  options?: IOption[];
   plugins?: string[];
   includes?: string[];
   prices: IPrice[];
@@ -113,6 +138,10 @@ export interface ILedger {
   balances: IBalance[];
   notes: INote[];
   documents: IDocument[];
+  events: IEvent[];
+  customs: ICustom[];
 }
 
-export type Metadata = Record<string, string | number>;
+export type MetadataValue = string | number | boolean | Date;
+
+export type Metadata = Record<string, MetadataValue>;

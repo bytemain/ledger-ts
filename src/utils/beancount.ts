@@ -1,15 +1,20 @@
 import dayjs from "dayjs";
 import {
+  CustomValue,
   IAccount,
   IBalance,
   ICurrency,
+  ICustom,
   IDocument,
+  IEvent,
   ILedger,
   INote,
+  IOption,
   IPostings,
   IPrice,
   ITransaction,
   Metadata,
+  MetadataValue,
 } from "../core/type.js";
 import { compareDate, compareString, mergeSortResult } from "./sort.js";
 
@@ -33,6 +38,12 @@ class BeanCount {
     const prices = this.serializationPrices(ledger.prices);
     if (prices) parts.push(prices);
 
+    const events = this.serializationEvents(ledger.events ?? []);
+    if (events) parts.push(events);
+
+    const customs = this.serializationCustoms(ledger.customs ?? []);
+    if (customs) parts.push(customs);
+
     parts.push(this.serializationTransactions(ledger.transactions));
     parts.push(this.serializationBalances(ledger.balances));
 
@@ -46,15 +57,15 @@ class BeanCount {
   }
 
   serializationOptions(
-    options?: Record<string, string>,
+    options?: IOption[],
     plugins?: string[],
     includes?: string[]
   ): string {
     const lines: string[] = [];
 
     if (options) {
-      for (const key of Object.keys(options).sort()) {
-        lines.push(`option "${key}" "${options[key]}"`);
+      for (const option of options) {
+        lines.push(`option "${option.key}" "${option.value}"`);
       }
     }
 
@@ -94,9 +105,13 @@ class BeanCount {
         ]);
       })
       .map((p) => {
-        return `${this.formateDate(p.date)} price ${p.currency.symbol}          ${p.amount.value} ${p.amount.currency.symbol}`;
+        const line = `${this.formateDate(p.date)} price ${p.currency.symbol}          ${p.amount.value} ${p.amount.currency.symbol}`;
+        return this.mergeLines(0, [
+          line,
+          this.serializationMetadata(1, p.metadata),
+        ]);
       })
-      .join("\n");
+      .join("\n\n");
   }
 
   private mergeLines(deep: number, lines: string[] | Array<string[]>): string {
@@ -116,9 +131,16 @@ class BeanCount {
       Object.keys(metadata)
         .sort()
         .map((key) => {
-          return `${key}: ${JSON.stringify(metadata[key])}`;
+          return `${key}: ${this.formatMetadataValue(metadata[key]!)}`;
         })
     );
+  }
+
+  private formatMetadataValue(value: MetadataValue): string {
+    if (value instanceof Date) {
+      return this.formateDate(value);
+    }
+    return JSON.stringify(value);
   }
 
   serializationAccounts(accounts: IAccount[]): string {
@@ -138,7 +160,7 @@ class BeanCount {
           )} ${p.currencies.map((o) => o.symbol).join(",")}`;
         }
         if (p.closeDate) {
-          res += `\n${this.formateDate(p.openDate)} close ${this.accountName(
+          res += `\n${this.formateDate(p.closeDate)} close ${this.accountName(
             p
           )}`;
         }
@@ -185,9 +207,13 @@ ${this.formateDate(p.date)} balance ${this.accountName(p.account)} ${
         ]);
       })
       .map((p) => {
-        return `${this.formateDate(p.date)} note ${this.accountName(p.account, 0)} "${p.comment}"`;
+        const line = `${this.formateDate(p.date)} note ${this.accountName(p.account, 0)} "${p.comment}"`;
+        return this.mergeLines(0, [
+          line,
+          this.serializationMetadata(1, p.metadata),
+        ]);
       })
-      .join("\n");
+      .join("\n\n");
   }
 
   serializationDocuments(documents: IDocument[]): string {
@@ -199,9 +225,52 @@ ${this.formateDate(p.date)} balance ${this.accountName(p.account)} ${
         ]);
       })
       .map((p) => {
-        return `${this.formateDate(p.date)} document ${this.accountName(p.account, 0)} "${p.path}"`;
+        const line = `${this.formateDate(p.date)} document ${this.accountName(p.account, 0)} "${p.path}"`;
+        return this.mergeLines(0, [
+          line,
+          this.serializationMetadata(1, p.metadata),
+        ]);
       })
-      .join("\n");
+      .join("\n\n");
+  }
+
+  serializationEvents(events: IEvent[]): string {
+    return events
+      .sort((a, b) => {
+        return mergeSortResult([
+          compareDate(a.date, b.date),
+          compareString(a.name, b.name),
+        ]);
+      })
+      .map((p) => {
+        const line = `${this.formateDate(p.date)} event "${p.name}" "${p.value}"`;
+        return this.mergeLines(0, [
+          line,
+          this.serializationMetadata(1, p.metadata),
+        ]);
+      })
+      .join("\n\n");
+  }
+
+  serializationCustoms(customs: ICustom[]): string {
+    return customs
+      .sort((a, b) => {
+        return mergeSortResult([
+          compareDate(a.date, b.date),
+          compareString(a.name, b.name),
+        ]);
+      })
+      .map((p) => {
+        const values = (p.values ?? [])
+          .map((value) => this.formatCustomValue(value))
+          .join(" ");
+        const line = `${this.formateDate(p.date)} custom "${p.name}"${values ? ` ${values}` : ""}`;
+        return this.mergeLines(0, [
+          line,
+          this.serializationMetadata(1, p.metadata),
+        ]);
+      })
+      .join("\n\n");
   }
 
   private accountName(account: IAccount, pad?: number): string {
@@ -247,7 +316,7 @@ ${this.formateDate(p.date)} balance ${this.accountName(p.account)} ${
             2,
             p.postings
               .sort((a, b) => {
-                return b.amount.value - a.amount.value;
+                return (b.amount?.value ?? 0) - (a.amount?.value ?? 0);
               })
               .map((o) => {
                 return [
@@ -267,6 +336,9 @@ ${this.formateDate(p.date)} balance ${this.accountName(p.account)} ${
 
   private formatPostingsPrice(postings: IPostings) {
     const amount = postings.amount;
+    if (!amount) {
+      return "";
+    }
 
     const price = [
       `${amount.value} ${amount.currency.symbol}`.padStart(this.currencyPad),
@@ -306,6 +378,19 @@ ${this.formateDate(p.date)} balance ${this.accountName(p.account)} ${
       }
     }
     return price.join(" ");
+  }
+
+  private formatCustomValue(value: CustomValue): string {
+    if (value instanceof Date) {
+      return this.formateDate(value);
+    }
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      return JSON.stringify(value);
+    }
+    if ("value" in value && "currency" in value) {
+      return `${value.value} ${value.currency.symbol}`;
+    }
+    return this.accountName(value, 0);
   }
 
   /**

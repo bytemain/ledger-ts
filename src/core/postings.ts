@@ -9,7 +9,7 @@ import {
 
 export class Postings implements IPostings {
   public account: IAccount;
-  public amount: IAmount;
+  public amount?: IAmount | null;
   public metadata?: Metadata | null;
   public as?: IPostingsPrice;
   public held?: IPostingsPrice;

@@ -26,6 +26,22 @@ it("test serializationBalances", () => {
   assertSnapshot(ledger, "balance");
 });
 
+it("serializes close directive with account close date", () => {
+  const CNY = Currency.create("2017-01-01", "CNY");
+  const account = new Account({
+    namespace: ["Cash"],
+    type: EAccountType.Assets,
+    currencies: [CNY],
+    openDate: new Date("2017-01-01"),
+    closeDate: new Date("2017-02-01"),
+  });
+  const ledger = new Ledger([account], [CNY]);
+
+  const output = beanCount.serializationLedger(ledger);
+
+  expect(output).toContain("2017-02-01 close Assets:Cash");
+});
+
 it("serializes extended beancount directives and transaction annotations", () => {
   const USD = Currency.create("2024-01-01", "USD");
   const IBM = Currency.create("2024-01-01", "IBM");
@@ -51,6 +67,7 @@ it("serializes extended beancount directives and transaction annotations", () =>
   const { pending, trFactory } = transactionBuilder(ledger);
 
   ledger.option("operating_currency", "USD");
+  ledger.option("operating_currency", "CNY");
   ledger.plugin("beancount.plugins.auto_accounts");
   ledger.include("prices.bean");
   ledger.price({
@@ -61,18 +78,44 @@ it("serializes extended beancount directives and transaction annotations", () =>
       value: 100,
       currency: USD,
     },
+    metadata: {
+      source: "manual",
+      confirmed: true,
+      checked_at: new Date("2024-01-02"),
+    },
   });
   ledger.note({
     type: "note",
     date: new Date("2024-01-03"),
     account: cash,
     comment: "Opened account",
+    metadata: {
+      source: "bank",
+    },
   });
   ledger.document({
     type: "document",
     date: new Date("2024-01-04"),
     account: cash,
     path: "receipts/ibm.pdf",
+    metadata: {
+      pages: 2,
+    },
+  });
+  ledger.event({
+    type: "event",
+    date: new Date("2024-01-05"),
+    name: "location",
+    value: "New York",
+  });
+  ledger.custom({
+    type: "custom",
+    date: new Date("2024-01-06"),
+    name: "budget",
+    values: ["travel", 1000, true, new Date("2024-01-01"), cash],
+    metadata: {
+      reviewed: false,
+    },
   });
 
   pending(
@@ -95,13 +138,24 @@ it("serializes extended beancount directives and transaction annotations", () =>
   const output = beanCount.serializationLedger(ledger);
 
   expect(output).toContain('option "operating_currency" "USD"');
+  expect(output).toContain('option "operating_currency" "CNY"');
   expect(output).toContain('plugin "beancount.plugins.auto_accounts"');
   expect(output).toContain('include "prices.bean"');
   expect(output).toMatch(/2024-01-02 price IBM\s+100 USD/);
+  expect(output).toContain('source: "manual"');
+  expect(output).toContain("confirmed: true");
+  expect(output).toContain("checked_at: 2024-01-02");
   expect(output).toContain('2024-01-03 note Assets:Cash "Opened account"');
+  expect(output).toContain('source: "bank"');
   expect(output).toContain(
     '2024-01-04 document Assets:Cash "receipts/ibm.pdf"'
   );
+  expect(output).toContain("pages: 2");
+  expect(output).toContain('2024-01-05 event "location" "New York"');
+  expect(output).toContain(
+    '2024-01-06 custom "budget" "travel" 1000 true 2024-01-01 Assets:Cash'
+  );
+  expect(output).toContain("reviewed: false");
   expect(output).toContain('2024-02-01 ! "Sell IBM"');
   expect(output).toContain('-10 IBM {} @ 100 USD');
   expect(output).toContain(
