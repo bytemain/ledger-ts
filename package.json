@@ -1,9 +1,9 @@
 {
-  "name": "@hamsterbase/ledger-ts",
+  "name": "@bytemain/ledger",
   "version": "0.14.0",
   "type": "module",
   "main": "dist/index.js",
-  "repository": "git@github.com:hamsterbase/ledger-ts.git",
+  "repository": "https://github.com/bytemain/ledger-ts",
   "author": "monster <monster@hamsterbase.com>",
   "license": "MIT",
   "publishConfig": {
@@ -31,6 +31,5 @@
     "tsx": "^4.7.0",
     "typescript": "^5.3.3",
     "vitest": "^1.2.2"
-  },
-  "dependencies": {}
+  }
 }

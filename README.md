@@ -22,13 +22,13 @@ So, I created ledger-ts. To put it in an analogy, ledger-ts is a more advanced a
 ## Installation
 
 ```bash
-npm install @hamsterbase/ledger-ts
+npm install @bytemain/ledger
 ```
 
 ## Example
 
 ```ts
-import { EAccountType, Ledger, utils } from "@hamsterbase/ledger-ts";
+import { EAccountType, Ledger, utils } from "@bytemain/ledger";
 
 // setup currencies
 const currencies = utils.createCurrencies(
