@@ -46,7 +46,10 @@ const Income = utils.buildAccountHierarchy(
   EAccountType.Income,
   {
     Exchange: {
-      TradingPnL: utils.createAccountNodeConfig({ open: "2024-01-01" }),
+      TradingPnL: utils.createAccountNodeConfig({
+        open: "2024-01-01",
+        currency: currencies.USDT,
+      }),
     },
   }
 );
