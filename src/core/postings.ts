@@ -35,6 +35,15 @@ export class Postings implements IPostings {
     }));
   }
 
+  heldAuto(): Postings {
+    return this.clone((old) => ({
+      ...old,
+      held: {
+        type: "auto",
+      },
+    }));
+  }
+
   heldCost(value: number, currency: ICurrency): Postings {
     return this.clone((old) => ({
       ...old,
